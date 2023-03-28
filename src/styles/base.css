@@ -1,0 +1,14 @@
+*{
+    font-family: 'Montserrat';
+}
+body{
+    margin: 0;
+}
+select{
+    width: 100px;
+    color: #404040;
+    outline: none;
+}
+input{
+    outline: none;
+}

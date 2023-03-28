@@ -1,0 +1,5 @@
+@media screen and (max-width: 600px){
+    .l-about-grid{
+        grid-template-columns: 1fr;
+    }
+}

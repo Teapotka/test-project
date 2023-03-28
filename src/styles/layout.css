@@ -1,0 +1,35 @@
+.l-app-bar{
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    width: 100%;
+    height: 200px;
+}
+.l-app-bar-grid{
+    padding-top: 20px;
+    display: grid;
+    justify-items: center;
+    row-gap: 20px;
+    grid-auto-rows: min-content;
+}
+.l-app-bar-row{
+    display: flex;
+    width: 80%;
+    justify-content: space-between;
+}
+.l-card-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    padding: 20px;
+    justify-items: center;
+    align-items: center;
+    column-gap: 10px;
+    row-gap: 10px;
+}
+.l-about-grid{
+    padding-top: 20px;
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    align-items: center;
+    justify-items: center;
+}
