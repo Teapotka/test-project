@@ -29,7 +29,8 @@
 .l-about-grid{
     padding-top: 20px;
     display: grid;
-    grid-template-columns: 200px 1fr;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 50px;
     align-items: center;
     justify-items: center;
 }

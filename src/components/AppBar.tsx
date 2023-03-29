@@ -2,13 +2,28 @@ import {useForm} from "react-hook-form";
 import {useDispatch} from "react-redux";
 import {fetchBooksByName} from "../redux/slices/booksSlice";
 import {AppDispatch} from "../redux/store";
+import {useEffect} from "react";
+import {Link, useLocation} from "react-router-dom";
 
 const AppBar = () => {
     const {register, handleSubmit, formState: {errors}} = useForm();
     const dispatch = useDispatch<AppDispatch>()
+    const {pathname} = useLocation()
+    const basepath = `${process.env.REACT_APP_BASE_ROUTE}`
+    console.log(pathname, basepath)
     const onSubmit = (data: any) => dispatch(fetchBooksByName(data))
+    useEffect(()=>{
+        window.addEventListener('keydown', (e:KeyboardEvent)=>{
+            if(e.code == 'Enter'){
+                (document.querySelector('button[type=submit]') as HTMLButtonElement).click()
+            }
+        })
+    },[])
     return (
+
         <div className='l-app-bar backgroundImage'>
+            {
+                pathname == basepath ?
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className='l-app-bar-grid'>
                     <div className='header-text'>Book for every day</div>
@@ -52,6 +67,9 @@ const AppBar = () => {
                     </div>
                 </div>
             </form>
+                    :
+                    <div className='header-text padding-top'><Link to={basepath}>Back to search</Link></div>
+            }
         </div>
     )
 }

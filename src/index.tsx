@@ -4,24 +4,29 @@ import App from './App';
 import Home from "./pages/home";
 import {Provider} from 'react-redux';
 import {store} from './redux/store';
-import {createBrowserRouter, RouterProvider} from "react-router-dom";
+import {createBrowserRouter, Link, RouterProvider} from "react-router-dom";
 import "@fontsource/montserrat";
 import './styles/style.css';
 import About from "./pages/about";
+import NotFound from "./pages/404";
 
 
 const root = ReactDOM.createRoot(
     document.getElementById('root') as HTMLElement
 );
-
+const basepath = `${process.env.REACT_APP_BASE_ROUTE}`
 const router = createBrowserRouter([
     {
-        path: '/',
+        path: basepath,
         element: <Home/>
     } ,
     {
-        path: '/:id',
+        path: `${basepath}/:id`,
         element: <About/>
+    },
+    {
+        path: '*',
+        element: <NotFound/>
     }
 ]);
 

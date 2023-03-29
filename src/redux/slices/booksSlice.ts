@@ -1,147 +1,140 @@
-import {createAsyncThunk, createSlice, Reducer} from '@reduxjs/toolkit'
+import {Action, createAsyncThunk, createSlice, Reducer} from '@reduxjs/toolkit'
 import axios from '../../axios'
 import {AppDispatch, RootState} from "../store";
-import exp from "constants";
-
+import {StringProcessing} from "../../utils/StringProcessing";
+//
 export const fetchBooksByName = createAsyncThunk(
     'books/fetchBooksByName',
-    async ({search, categories, sortingBy}: {search: string, categories: string, sortingBy: string}) => {
-        console.log('here')
-        const searchString = search.toLocaleLowerCase().split(' ').filter(i=>i!=='').join('+')
-        const {data} = await axios.get(`/volumes?q=${searchString}${categories === 'all' ? "" : `+subject:${categories}`}&orderBy=${sortingBy}`)
-        return {data, filters: {searchString, categories, sortingBy}}
+    async ({search, categories, sortingBy}: TFormFields) => {
+        try {
+            const searchString = StringProcessing.toSearchString(search)
+            const {data} = await axios.get<TRawBooks>(StringProcessing.toNameSearchURL(searchString, categories, sortingBy))
+            console.log("ATH_BY_NAME",data)
+            if(!data.items)
+                throw Error('Bad request')
+            return {data, filters: {searchString, categories, sortingBy}}
+        }
+        catch (e) {
+            throw Error('Request error')
+        }
     }
 )
 export const fetchBookById = createAsyncThunk(
     'books/fetchBookById',
     async (id:string) =>{
-        const {data} = await axios.get(`/volumes/${id}`)
-        return data
+        try {
+            const {data} = await axios.get<TRawBookVolumeInfo>(StringProcessing.toIdSearchURL(id))
+            console.log('by ID', {data})
+            return {data}
+        }
+        catch (e) {
+            throw Error('Request error')
+        }
     }
 )
 
 export const loadMoreBooks = createAsyncThunk(
     'books/loadMoreBooks',
-    async (arg: number, {getState}) => {
+    async (_, {getState}) => {
         const {filters:{searchString, categories, sortingBy}, items} = (getState() as any).book.books
-        console.log(searchString)
-        const {data} = await axios.get(`/volumes?q=${searchString}${categories === 'all' ? "" : `+subject:${categories}`}&orderBy=${sortingBy}&startIndex=${items.length}`)
-        return {data, filters:{searchString, categories, sortingBy}};
+        const {data} = await axios.get<TRawBooks>(StringProcessing.toNameSearchURL(searchString, categories, sortingBy, items.length))
+        if(!data.items)
+            throw Error('Bad request')
+        return {data, filters:{searchString, categories, sortingBy}}
     }
 )
-const initialState = {
+
+const initialState: TInitialState = {
     books: {
         kind: "",
-        totalItems: null,
+        totalItems: 0,
         items: [],
         filters:{
-            searchString: null,
-            categories: null,
-            sortingBy: null,
+            searchString: "",
+            categories: 'all',
+            sortingBy: "relevance",
         },
+        status: 'init',
     },
     book: {
         title: "",
         authors: [],
         categories: [],
         url: "",
+        description: "",
         status: "init"
     },
-    status: 'init',
 }
 export const booksSlice = createSlice({
     name: 'books',
     initialState,
     reducers: {},
     extraReducers: {
+        //fetchBookByName
         [fetchBooksByName.pending.toString()]: (state) => {
-            state.books = {
-                kind: "",
-                totalItems: null,
-                items: [],
-                filters: {
-                    searchString: null,
-                    categories: null,
-                    sortingBy: null,
-                }
-            }
-            state.status = 'loading'
+            state.books = {...initialState.books, status: "loading"}
+            console.log('fetchBooksByName.pending',state.books)
         },
-        [fetchBooksByName.fulfilled.toString()]: (state, action) => {
-            console.log(action.payload)
-            const {data:{kind,items, totalItems}, filters: {categories, searchString, sortingBy}} = action.payload
+        [fetchBooksByName.fulfilled.toString()]: (state, {payload}: TBooksPayload) => {
+            const {
+                data:{
+                    kind, items, totalItems
+                },
+                filters: {
+                    categories, searchString, sortingBy
+                }
+            } = payload
+
             state.books = {
                 kind,
-                items,
+                items: StringProcessing.filterRawBooks({items}),
                 totalItems,
                 filters:{
                     categories,
                     searchString,
                     sortingBy
-                }
-            }
-            state.status = 'loaded'
-        },
-        [fetchBooksByName.rejected.toString()]: (state) => {
-            state.books = {
-                kind: "",
-                totalItems: null,
-                items: [],
-                filters: {
-                    searchString: null,
-                    categories: null,
-                    sortingBy: null,
-                }
-            }
-            state.status = 'rejected'
-        },
-        [fetchBookById.pending.toString()]: (state) => {
-            console.log('STATE',state)
-            state.book = {
-                title: "",
-                authors: [],
-                categories: [],
-                url: "",
-                status: "loading"
-            }
-            // state.status = 'loading'
-        },
-        [fetchBookById.fulfilled.toString()]: (state, action) => {
-            console.log("ACT",action.payload)
-            const {title = 'No title', categories = 'Other', authors = 'Anonymous', imageLinks} = action.payload.volumeInfo
-            console.log(title, categories, authors, imageLinks)
-            state.book = {
-                title,
-                categories,
-                authors,
-                url: imageLinks == undefined ? 'https://upload.wikimedia.org/wikipedia/commons/6/65/No-Image-Placeholder.svg' : imageLinks.thumbnail,
+                },
                 status: 'loaded'
             }
-            // state.status = 'loaded'
+            console.log("fetchBooksByName.fulfilled",state.books)
+        },
+        [fetchBooksByName.rejected.toString()]: (state) => {
+            state.books = {...initialState.books, status: "rejected"}
+            console.log('fetchBooksByName.rejected', state.books)
+        },
+
+        //fetchBookById
+        [fetchBookById.pending.toString()]: (state) => {
+            state.book = {...initialState.book, status: "loading"}
+            console.log('fetchBookById.pending',state.book)
+        },
+        [fetchBookById.fulfilled.toString()]: (state, {payload}: TBookPayload) => {
+            //TODO item check
+            console.log("ITEM", payload.data)
+            state.book = {...StringProcessing.filterRawBook(payload.data.volumeInfo), status: 'loaded'}
+            console.log('fetchBookById.fulfilled', state.book)
         },
         [fetchBookById.rejected.toString()]: (state) => {
-            state.book = {
-                title: "",
-                authors: [],
-                categories: [],
-                url: "",
-                status: "rejected"
-            }
-            // state.status = 'rejected'
+            state.book = {...initialState.book, status: "rejected"}
+        },
 
-        },
+        //loadMoreBooks
         [loadMoreBooks.pending.toString()]: (state) => {
-            console.log('p')
+            state.books.status = 'loading'
+            console.log("loadMoreBooks.pending", state.books)
         },
-        [loadMoreBooks.fulfilled.toString()]: (state, action) => {
-            console.log('f', action.payload)
-            // state.books.items.concat(action.payload.data.items)
-            state.books.items = state.books.items.concat(action.payload.data.items)
+        [loadMoreBooks.fulfilled.toString()]: (state, {payload}) => {
+            if(state.books.items && state.books.items.length){
+                const oldItems = state.books.items
+                const newItems = StringProcessing.filterRawBooks(payload.data)
+                state.books = {...state.books, items: [...oldItems, ...newItems], status: 'loaded'}
+                console.log("loadMoreBooks.fulfilled", state.books)
+            }
         },
         [loadMoreBooks.rejected.toString()]: (state) => {
-            console.log('r')
+            state.books.status = 'rejected'
         },
     }
 })
-
+//
 export default booksSlice.reducer as Reducer<typeof initialState>

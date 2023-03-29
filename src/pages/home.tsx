@@ -16,9 +16,9 @@ const Home = () => {
     //     const json = await response.json()
     //     console.log(json)
     // })();
-    const {books, status} = useSelector((state: RootState) => state.book);
+    const {totalItems, items, status, filters} = useSelector((state: RootState) => state.book.books);
     const dispatch = useDispatch<AppDispatch>()
-    console.log("SELECTOR", books, status)
+    console.log("SELECTOR", {totalItems, items, status, filters})
     return (
         <>
             <AppBar/>
@@ -26,36 +26,35 @@ const Home = () => {
                 status == 'loading' && <div className='loader'>Loading...</div>
             }
             {
-                books.totalItems != null ?
-                    <>
-                        <div className='subtitle-text'>Founded {books.totalItems} results</div>
-
-                        <div className='l-card-grid'>
-                            {
-                                books.totalItems != 0 ?
-                                    books.items.map((b: any) => <Card
-                                        item={b.volumeInfo}
-                                        id={b.id}
-                                        key={b.id + b.etag}
-                                    />)
-                                    :
-                                    <></>
-                            }
-                        </div>
-
+                (status == 'rejected' && totalItems == 0 && items!.length == 0) &&
+                <div className='loader'>No book found :(</div>
+            }
+            {
+                (items && (status == 'loaded' || items.length != 0)) &&
+                <>
+                    <div className='subtitle-text'>Founded {totalItems} results</div>
+                    <div className='l-card-grid'>
                         {
-                            books.totalItems != 0 ?
-                                <div className='load-button-box' onClick={()=>dispatch(loadMoreBooks(2))}>
-                                    <div className='load-button'>
-                                        Load more
-                                    </div>
-                                </div>
-                                :
-                                <></>
+                            items.map((book: any, index:number) => {
+                                return <Card
+                                    key={index}
+                                    {...book}
+                                />;
+                            })
                         }
-                    </>
-                    :
-                    <></>
+                    </div>
+                    {
+                        status != 'rejected' ?
+                            (items.length != totalItems) &&
+                            <div className='load-button-box' onClick={() => dispatch(loadMoreBooks())}>
+                                <div className='load-button'>
+                                    {status == 'loading' ? 'Loading...' : 'Load more'}
+                                </div>
+                            </div>
+                            :
+                            <></>
+                    }
+                </>
             }
         </>
     );

@@ -5,9 +5,12 @@ const instance = axios.create({
 })
 
 instance.interceptors.request.use((config)=>{
+    config.params = {
+        key: `${process.env.REACT_APP_API_KEY}`,
+    }
     if(config.url!.startsWith('/volumes?')) {
         config.params = {
-            key: 'AIzaSyBCX9DFVmQL1mImqq-1zLmiy22BLbD2q10',
+            ...config.params,
             maxResults: 30,
         }
     }

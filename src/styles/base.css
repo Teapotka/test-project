@@ -12,3 +12,8 @@ select{
 input{
     outline: none;
 }
+a:visited,
+a:active,
+a{
+    color: black;
+}

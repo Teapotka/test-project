@@ -70,11 +70,13 @@
 .about-image{
     -webkit-box-shadow: 10px 10px 27px -7px rgba(0,0,0,0.6);
     box-shadow: 10px 10px 27px -7px rgba(0,0,0,0.6);
+    justify-self: end;
 }
 .about-image img{
     width: 100%;
 }
 .about-info{
+    justify-self: start;
     display: grid;
     row-gap: 10px;
     padding: 20px;
@@ -89,3 +91,12 @@
 }.about-author{
        font-size: 14px;
 }
+ .not-found-box{
+     position: absolute;
+     text-align: center;
+     top: 50%;
+     width: 100%;
+ }
+ .padding-top{
+     padding-top: 20px;
+ }
