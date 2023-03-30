@@ -27,7 +27,8 @@ export const fetchBookById = createAsyncThunk(
             console.log('by ID', {data})
             return {data}
         }
-        catch (e) {
+        catch (e: any) {
+            console.log(e)
             throw Error('Request error')
         }
     }
@@ -109,7 +110,6 @@ export const booksSlice = createSlice({
             console.log('fetchBookById.pending',state.book)
         },
         [fetchBookById.fulfilled.toString()]: (state, {payload}: TBookPayload) => {
-            //TODO item check
             console.log("ITEM", payload.data)
             state.book = {...StringProcessing.filterRawBook(payload.data.volumeInfo), status: 'loaded'}
             console.log('fetchBookById.fulfilled', state.book)

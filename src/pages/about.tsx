@@ -25,12 +25,12 @@ const About = () => {
             }
             {
                 status == 'loaded' &&
-                <div className='l-about-grid'>
+                <div className='grid-center l-about-grid'>
                     <div className='about-image'>
                         <img src={url}/>
                     </div>
                     <div className='about-info'>
-                        <div className='about-category'>{
+                        <div className='about-subtitle'>{
                             (categories.length > 3 ? categories.slice(0, 3) : categories)
                                 .map((c: string, index: number) => <React.Fragment key={index}>
                                     {c}
@@ -38,8 +38,8 @@ const About = () => {
                                 </React.Fragment>)}
                         </div>
                         <div className='about-title'>{title}</div>
-                        <div className='about-author'>{authors.join(", ")}</div>
-                        <div className='about-author'>{description.replace(/<(?:"[^"]*"['"]*|'[^']*'['"]*|[^'">])+>/g, '')}</div>
+                        <div className='about-subtitle-alt'>{authors.join(", ")}</div>
+                        <div className='about-subtitle-alt'>{description.replace(/<(?:"[^"]*"['"]*|'[^']*'['"]*|[^'">])+>/g, '')}</div>
                     </div>
                 </div>
             }

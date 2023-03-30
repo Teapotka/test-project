@@ -33,7 +33,7 @@ const Home = () => {
                 (items && (status == 'loaded' || items.length != 0)) &&
                 <>
                     <div className='subtitle-text'>Founded {totalItems} results</div>
-                    <div className='l-card-grid'>
+                    <div className='grid-center grid-padding l-card-grid'>
                         {
                             items.map((book: any, index:number) => {
                                 return <Card
@@ -46,8 +46,8 @@ const Home = () => {
                     {
                         status != 'rejected' ?
                             (items.length != totalItems) &&
-                            <div className='load-button-box' onClick={() => dispatch(loadMoreBooks())}>
-                                <div className='load-button'>
+                            <div className='flex-alt-center load-button-box' onClick={() => dispatch(loadMoreBooks())}>
+                                <div className='flex-alt-center load-button'>
                                     {status == 'loading' ? 'Loading...' : 'Load more'}
                                 </div>
                             </div>

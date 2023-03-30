@@ -7,13 +7,13 @@ const Card:FC<TCardParams> = ({id, title,authors,categories, url}) => {
     const navigate = useNavigate()
     const basepath = `${process.env.REACT_APP_BASE_ROUTE}`
     return (
-        <div className='card' id={id} onClick={()=>navigate(`${basepath}/${id}`)}>
-            <div className='card-image'>
+        <div className='card' id={id} onClick={()=>navigate(`${basepath}${id}`)} data-testid='card'>
+            <div className='flex-alt-center card-image'>
                 <img src={url} />
             </div>
-            <div className='card-category'>{categories[0]}</div>
-            <div className='card-name'>{title.length > 25 ? title.slice(0, 25)+'...': title}</div>
-            <div className='card-author'>{authors[0]}</div>
+            <div className='card-subtitle'>{categories[0]}</div>
+            <div className='card-title'>{title.length > 25 ? title.slice(0, 25)+'...': title}</div>
+            <div className='card-subtitle'>{authors[0]}</div>
         </div>
     )
 }

@@ -21,13 +21,13 @@ const AppBar = () => {
     },[])
     return (
 
-        <div className='l-app-bar backgroundImage'>
+        <div className='l-app-bar flex-center background-image' data-testid='app-bar'>
             {
                 pathname == basepath ?
             <form onSubmit={handleSubmit(onSubmit)}>
-                <div className='l-app-bar-grid'>
+                <div className='grid-padding l-app-bar-grid'>
                     <div className='header-text'>Book for every day</div>
-                    <div className='search-bar'>
+                    <div className='flex-center'>
                         <input
                             type='text'
                             placeholder= {errors.search ? "Write a name" : 'Search...'}
