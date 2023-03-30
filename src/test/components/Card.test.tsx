@@ -20,7 +20,6 @@ describe('Card', () => {
         )
         const card = await screen.findByTestId('card')
         fireEvent.click(card)
-        console.log(global.window.location.pathname)
         expect(global.window.location.pathname).toBe(`${process.env.REACT_APP_BASE_ROUTE}${mock.id}`)
     })
 });

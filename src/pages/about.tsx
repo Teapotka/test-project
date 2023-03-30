@@ -13,7 +13,6 @@ const About = () => {
     useEffect(() => {
         dispatch(fetchBookById(id!))
     }, [])
-    console.log("SELECTOR", {url, title, authors, categories, status}, id)
     return (
         <>
             <AppBar/>

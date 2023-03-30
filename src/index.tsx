@@ -16,10 +16,12 @@ const root = ReactDOM.createRoot(
 const basepath = `${process.env.REACT_APP_BASE_ROUTE}`
 const router = createBrowserRouter([
     {
+        //library homepage
         path: basepath,
         element: <Home/>
     } ,
     {
+        //book description page
         path: `${basepath}:id`,
         element: <About/>
     },

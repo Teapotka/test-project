@@ -7,6 +7,7 @@ const Card:FC<TCardParams> = ({id, title,authors,categories, url}) => {
     const navigate = useNavigate()
     const basepath = `${process.env.REACT_APP_BASE_ROUTE}`
     return (
+        //when clicked, redirect to book description page <About>
         <div className='card' id={id} onClick={()=>navigate(`${basepath}${id}`)} data-testid='card'>
             <div className='flex-alt-center card-image'>
                 <img src={url} />

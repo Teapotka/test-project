@@ -2,23 +2,11 @@ import AppBar from "../components/AppBar";
 import Card from "../components/Card";
 import {useDispatch, useSelector} from "react-redux";
 import {AppDispatch, RootState} from "../redux/store";
-import {fetchBooksByName, loadMoreBooks} from "../redux/slices/booksSlice";
+import {loadMoreBooks} from "../redux/slices/booksSlice";
 
 const Home = () => {
-    // (async function fetchOne() {
-    //     const response = await fetch('https://www.googleapis.com/books/v1/volumes/QFXgCgAAQBAJ')
-    //     const json = await response.json()
-    //     console.log('ID', json)
-    // })();
-    // (async function fetchData() {
-    //     // const response = await fetch('https://www.googleapis.com/books/v1/volumes?q=inauthor:harry+inauthor:potter&maxResults=30&startIndex=0')
-    //     const response = await fetch('https://www.googleapis.com/books/v1/volumes?q=subject:computers&maxResults=30&startIndex=0')
-    //     const json = await response.json()
-    //     console.log(json)
-    // })();
     const {totalItems, items, status, filters} = useSelector((state: RootState) => state.book.books);
     const dispatch = useDispatch<AppDispatch>()
-    console.log("SELECTOR", {totalItems, items, status, filters})
     return (
         <>
             <AppBar/>
@@ -44,6 +32,9 @@ const Home = () => {
                         }
                     </div>
                     {
+                        //if status is not rejected and count of items is
+                        // not equal to total count of books you will see the button
+                        // otherwise the button will not be displayed
                         status != 'rejected' ?
                             (items.length != totalItems) &&
                             <div className='flex-alt-center load-button-box' onClick={() => dispatch(loadMoreBooks())}>

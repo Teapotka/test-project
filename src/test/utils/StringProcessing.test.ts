@@ -14,7 +14,6 @@ describe('String Processing', () => {
         const startId = 30
         const searchName = StringProcessing.toNameSearchURL(name, categories, sortingBy, startId)
         expect(searchName).toBe('/volumes?q=harry+potter+subject:art&orderBy=relevance&startIndex=30')
-        console.log(searchName)
     })
     test('should filter Books', () => {
         const allFields:TRawBook ={

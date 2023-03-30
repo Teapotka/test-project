@@ -10,10 +10,13 @@ const AppBar = () => {
     const dispatch = useDispatch<AppDispatch>()
     const {pathname} = useLocation()
     const basepath = `${process.env.REACT_APP_BASE_ROUTE}`
-    console.log(pathname, basepath)
+
+    //onSubmit handler
     const onSubmit = (data: any) => dispatch(fetchBooksByName(data))
+
     useEffect(()=>{
         window.addEventListener('keydown', (e:KeyboardEvent)=>{
+            //quick submit for desktops
             if(e.code == 'Enter'){
                 (document.querySelector('button[type=submit]') as HTMLButtonElement).click()
             }
@@ -23,23 +26,27 @@ const AppBar = () => {
 
         <div className='l-app-bar flex-center background-image' data-testid='app-bar'>
             {
+                //if you are on homepage you will see this app bar
                 pathname == basepath ?
             <form onSubmit={handleSubmit(onSubmit)}>
                 <div className='grid-padding l-app-bar-grid'>
                     <div className='header-text'>Book for every day</div>
                     <div className='flex-center'>
+                        {/*search field*/}
                         <input
                             type='text'
                             placeholder= {errors.search ? "Write a name" : 'Search...'}
                             style={{border: errors.search ? "red solid 1px" : 'none'}}
                             {...register("search", {required: "Name is required"})}
                         />
+                        {/*form submit button*/}
                         <button type='submit'>Go</button>
                     </div>
                     <div className='l-app-bar-row'>
                         <div>
                             Categories
                         </div>
+                        {/*categories dropdown menu*/}
                         <select
                             defaultValue='all'
                             {...register("categories")}
@@ -57,6 +64,7 @@ const AppBar = () => {
                         <div>
                             Sorting by
                         </div>
+                        {/*Sorting by dropdown menu*/}
                         <select
                             defaultValue='relevance'
                             {...register("sortingBy")}
@@ -68,6 +76,7 @@ const AppBar = () => {
                 </div>
             </form>
                     :
+                    //if you aren't on homepage you will see this app bar
                     <div className='header-text padding-top'><Link to={basepath}>Back to search</Link></div>
             }
         </div>

@@ -1,15 +1,15 @@
-import {Action, createAsyncThunk, createSlice, Reducer} from '@reduxjs/toolkit'
+import {createAsyncThunk, createSlice} from '@reduxjs/toolkit'
 import axios from '../../axios'
-import {AppDispatch, RootState} from "../store";
 import {StringProcessing} from "../../utils/StringProcessing";
-//
+
 export const fetchBooksByName = createAsyncThunk(
     'books/fetchBooksByName',
     async ({search, categories, sortingBy}: TFormFields) => {
         try {
+            //converting the raw string
             const searchString = StringProcessing.toSearchString(search)
+            //getting new books by name and filters
             const {data} = await axios.get<TRawBooks>(StringProcessing.toNameSearchURL(searchString, categories, sortingBy))
-            console.log("ATH_BY_NAME",data)
             if(!data.items)
                 throw Error('Bad request')
             return {data, filters: {searchString, categories, sortingBy}}
@@ -23,12 +23,11 @@ export const fetchBookById = createAsyncThunk(
     'books/fetchBookById',
     async (id:string) =>{
         try {
+            //getting new book by id
             const {data} = await axios.get<TRawBookVolumeInfo>(StringProcessing.toIdSearchURL(id))
-            console.log('by ID', {data})
             return {data}
         }
         catch (e: any) {
-            console.log(e)
             throw Error('Request error')
         }
     }
@@ -37,11 +36,18 @@ export const fetchBookById = createAsyncThunk(
 export const loadMoreBooks = createAsyncThunk(
     'books/loadMoreBooks',
     async (_, {getState}) => {
-        const {filters:{searchString, categories, sortingBy}, items} = (getState() as any).book.books
-        const {data} = await axios.get<TRawBooks>(StringProcessing.toNameSearchURL(searchString, categories, sortingBy, items.length))
-        if(!data.items)
-            throw Error('Bad request')
-        return {data, filters:{searchString, categories, sortingBy}}
+        try {
+            //getting old books and filters
+            const {filters: {searchString, categories, sortingBy}, items} = (getState() as any).book.books
+            //getting new books by name and filters
+            const {data} = await axios.get<TRawBooks>(StringProcessing.toNameSearchURL(searchString, categories, sortingBy, items.length))
+            if (!data.items)
+                throw Error('Bad request')
+            return {data, filters: {searchString, categories, sortingBy}}
+        }
+        catch (e){
+            throw Error('Request error')
+        }
     }
 )
 
@@ -74,9 +80,9 @@ export const booksSlice = createSlice({
         //fetchBookByName
         [fetchBooksByName.pending.toString()]: (state) => {
             state.books = {...initialState.books, status: "loading"}
-            console.log('fetchBooksByName.pending',state.books)
         },
         [fetchBooksByName.fulfilled.toString()]: (state, {payload}: TBooksPayload) => {
+            //getting fields from payload
             const {
                 data:{
                     kind, items, totalItems
@@ -85,9 +91,10 @@ export const booksSlice = createSlice({
                     categories, searchString, sortingBy
                 }
             } = payload
-
+            //setting fields from payload
             state.books = {
                 kind,
+                //processing raw books
                 items: StringProcessing.filterRawBooks({items}),
                 totalItems,
                 filters:{
@@ -97,22 +104,18 @@ export const booksSlice = createSlice({
                 },
                 status: 'loaded'
             }
-            console.log("fetchBooksByName.fulfilled",state.books)
         },
         [fetchBooksByName.rejected.toString()]: (state) => {
             state.books = {...initialState.books, status: "rejected"}
-            console.log('fetchBooksByName.rejected', state.books)
         },
 
         //fetchBookById
         [fetchBookById.pending.toString()]: (state) => {
             state.book = {...initialState.book, status: "loading"}
-            console.log('fetchBookById.pending',state.book)
         },
         [fetchBookById.fulfilled.toString()]: (state, {payload}: TBookPayload) => {
-            console.log("ITEM", payload.data)
+            //setting new book
             state.book = {...StringProcessing.filterRawBook(payload.data.volumeInfo), status: 'loaded'}
-            console.log('fetchBookById.fulfilled', state.book)
         },
         [fetchBookById.rejected.toString()]: (state) => {
             state.book = {...initialState.book, status: "rejected"}
@@ -121,14 +124,14 @@ export const booksSlice = createSlice({
         //loadMoreBooks
         [loadMoreBooks.pending.toString()]: (state) => {
             state.books.status = 'loading'
-            console.log("loadMoreBooks.pending", state.books)
         },
         [loadMoreBooks.fulfilled.toString()]: (state, {payload}) => {
+            //checking if response is right for processing
             if(state.books.items && state.books.items.length){
                 const oldItems = state.books.items
                 const newItems = StringProcessing.filterRawBooks(payload.data)
+                //concatenation of 2 arrays
                 state.books = {...state.books, items: [...oldItems, ...newItems], status: 'loaded'}
-                console.log("loadMoreBooks.fulfilled", state.books)
             }
         },
         [loadMoreBooks.rejected.toString()]: (state) => {
@@ -137,4 +140,4 @@ export const booksSlice = createSlice({
     }
 })
 //
-export default booksSlice.reducer as Reducer<typeof initialState>
+export default booksSlice.reducer
